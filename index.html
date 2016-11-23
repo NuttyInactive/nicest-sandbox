@@ -1,0 +1,297 @@
+<!doctype HTML>
+<html lang="en">
+<header>
+    <title>Nicest Slack Prototype</title>
+</header>
+<body>
+    <form id="slackForm">
+        First Team Member: <br>
+        <input type="text" id="firstTeamMember" value="Eric">
+        <br>
+        <input type="text" id="firstEmail" value="edressle@asu.edu">
+        <br>
+        Second Team Member: <br>
+        <input type="text" id="secondTeamMember" value="Casey">
+        <br>
+        <input type="text" id="secondEmail" value="cwvander@asu.edu">
+        <br>
+        Third Team Member: <br>
+        <input type="text" id="thirdTeamMember" value="Ben">
+        <br>
+        <input type="text" id="thirdEmail" value="bpaothat@gmail.com">
+        <br>
+        <button id="submit-btn" type="button">Add Members</button>
+    </form>
+    
+    <!-- Javascript DOM output -->
+    <div id="output"></div>
+    <script type="text/javascript">
+        function provision() {
+            //addUsersToSlackTeam();
+            getUserIds()
+            //addUsersToChannel();
+        }
+        document.getElementById("submit-btn").addEventListener("click", provision, false);
+        // Slack API credentials
+        // https://dummy19.slack.com/signup
+
+        const API_TOKEN = "xoxp-105605979267-104967703392-107641972484-691456e7465fc5192c0b353021dfc5de";
+
+        const CLIENT_ID = "105605979267.105751148036";
+
+        const CLIENT_SECRET = "e97116380c806b1f7a3a2ca4f2f354a3";
+
+        const CHANNEL_ID = "C34STCT6D";
+
+        
+
+        // Slack API endpoints
+
+        const CREATE_CHANNEL_URL = "https://slack.com/api/channels.create";
+
+        const INVITE_CHANNEL_URL = " https://slack.com/api/channels.invite";
+
+        const INVITE_USER_URL = "https://dummy19.slack.com/api/users.admin.invite";
+
+        const USER_ID_URL = "https://slack.com/api/users.list";
+
+        
+
+        function getRequestObject() {
+
+            if (window.XMLHttpRequest) {
+
+                return (new XMLHttpRequest());
+
+            } else {
+
+                return (null);
+
+            }
+
+        }
+
+        
+
+        function log(str) {
+
+            let div = document.getElementById("output");
+
+            let p = document.createElement("p");
+
+        
+
+            p.appendChild(document.createTextNode(str));
+
+            document.getElementById("output").appendChild(p);
+
+        }
+
+        
+
+        /*
+
+        function createTeamChannels() {
+
+            var request = getRequestObject();
+
+            request.onreadystatechange = function() {
+
+            if (request.readyState === XMLHttpRequest.DONE) {
+
+                if (request.status === 200) {
+
+                    log("Channel creation success");
+
+                } else {
+
+                    log("Channel creation failed");
+
+                    }
+
+                }
+
+            }
+
+            request.open("POST", CREATE_CHANNEL_URL, true);
+
+            request.send();
+
+        }
+
+        */
+
+        
+
+        function getUsers() {
+
+            return [
+
+                {name: document.getElementById("firstTeamMember").value, email: document.getElementById("firstEmail").value},
+
+                {name: document.getElementById("secondTeamMember").value, email: document.getElementById("secondEmail").value},
+
+                {name: document.getElementById("thirdTeamMember").value, email: document.getElementById("thirdEmail").value}
+
+            ];
+
+        }
+
+        
+
+        function addUsersToChannel() {
+
+            getUserIds((response) => {
+
+                for (var user in response.members) {
+
+                    var request = getRequestObject();
+
+                    var payload = {
+
+                        "token": API_TOKEN,
+
+                        "channel": CHANNEL_ID, 
+
+                        "user": user.id
+
+                    };
+
+                    request.onreadystatechange = function() {
+
+                        if (request.readyState === XMLHttpRequest.DONE) {
+
+                            if (request.status === 200) {
+
+                                log("User added");
+
+                                log(request.responseText);
+
+                            } else {
+
+                                log("User being added failed");
+
+                            }
+
+                        }
+
+                    }
+
+                    request.open("POST", INVITE_CHANNEL_URL, true);
+
+                    request.send(JSON.stringify(payload));
+
+                }
+
+            });
+
+        }
+
+        
+
+        function authTest() {
+
+            var request = getRequestObject();
+
+            var payload = {
+
+                "token": API_TOKEN
+
+            };
+
+            request.onreadystatechange = () => {
+
+                if (request.readyState === 4) {
+
+                    if (request.status === 200) {
+
+                        log(request.responseText);
+
+                    } else {
+
+                        log("Failure");
+
+                    }
+
+                }
+
+            };
+
+            request.open("POST", "https://slack.com/api/auth.test", true);
+
+            request.send(JSON.stringify(payload));
+
+        }
+
+        
+
+        authTest();
+
+        
+
+        function addUsersToSlackTeam() {
+
+            log("In addUsersToSlackTeam");
+
+            var users = getUsers();
+
+            log(JSON.stringify(users));
+
+            for (let i = 0; i < users.length; i++) {
+
+                var request = getRequestObject();
+
+                var payload = "?email=" + users[i].email + "&token=" + API_TOKEN + "&set_active=true";
+
+                log(JSON.stringify(payload));
+
+                request.onreadystatechange = function() {
+
+                    if (request.readyState === XMLHttpRequest.DONE) {
+
+                        if (request.status === 200) {
+
+                            var response = JSON.parse(request.responseText);
+
+                            log(request.responseText);
+
+                        } else {
+
+                            log("Error");
+
+                        }
+
+                    }
+
+                }
+
+                request.open("POST", INVITE_USER_URL + payload, true);
+
+                request.send(null);
+
+            }
+
+        }
+
+        
+
+        function getUserIds() {
+            var request = getRequestObject();
+            var payload = "?token=" + API_TOKEN;
+            request.onreadystatechange = function() {
+                if (request.readyState === XMLHttpRequest.DONE) {
+                    if (request.status === 200) {
+                        var response = JSON.parse(request.responseText);
+                        log(request.responseText);
+                        //callback(response);
+                    } else {
+                        log("Error");
+                    }
+                }
+            }
+            request.open("GET", USER_ID_URL + payload, true);
+            request.send(null);
+        }
+    </script>
+</body>
+</html>   
