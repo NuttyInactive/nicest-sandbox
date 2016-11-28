@@ -5,20 +5,23 @@
 </header>
 <body>
     <form id="slackForm">
-        First Team Member: <br>
-        <input type="text" id="firstTeamMember" value="Eric">
+        Team ID Token: <br>
+		<input type="text" id="ApiToken" value="API Token">
+		<br>
+		First Team Member: <br>
+        <input type="text" id="firstTeamMember" value="Name">
         <br>
-        <input type="text" id="firstEmail" value="edressle@asu.edu">
+        <input type="text" id="firstEmail" value="Email">
         <br>
         Second Team Member: <br>
-        <input type="text" id="secondTeamMember" value="Casey">
+        <input type="text" id="secondTeamMember" value="Name">
         <br>
-        <input type="text" id="secondEmail" value="cwvander@asu.edu">
+        <input type="text" id="secondEmail" value="Email">
         <br>
         Third Team Member: <br>
-        <input type="text" id="thirdTeamMember" value="Ben">
+        <input type="text" id="thirdTeamMember" value="Name">
         <br>
-        <input type="text" id="thirdEmail" value="bpaothat@gmail.com">
+        <input type="text" id="thirdEmail" value="Email">
         <br>
         <button id="submit-btn" type="button">Add Members</button>
     </form>
@@ -34,8 +37,6 @@
         document.getElementById("submit-btn").addEventListener("click", provision, false);
         // Slack API credentials
         // https://dummy19.slack.com/signup
-
-        const API_TOKEN = "xoxp-105605979267-104967703392-107641972484-691456e7465fc5192c0b353021dfc5de";
 
         const CLIENT_ID = "105605979267.105751148036";
 
@@ -136,6 +137,10 @@
             ];
 
         }
+		
+		function getAPIToken() {
+			return document.getElementById("ApiToken").value;
+		}
 
         
 
@@ -195,7 +200,7 @@
 
             var payload = {
 
-                "token": API_TOKEN
+                "token": getAPIToken();
 
             };
 
@@ -224,9 +229,6 @@
         }
 
         
-
-        authTest();
-
         
 
         function addUsersToSlackTeam() {
@@ -241,7 +243,7 @@
 
                 var request = getRequestObject();
 
-                var payload = "?email=" + users[i].email + "&token=" + API_TOKEN + "&set_active=true";
+                var payload = "?email=" + users[i].email + "&token=" + getAPIToken() + "&set_active=true";
 
                 log(JSON.stringify(payload));
 
@@ -277,7 +279,7 @@
 
         function getUserIds() {
             var request = getRequestObject();
-            var payload = "?token=" + API_TOKEN;
+            var payload = "?token=" + getAPIToken();
             request.onreadystatechange = function() {
                 if (request.readyState === XMLHttpRequest.DONE) {
                     if (request.status === 200) {
